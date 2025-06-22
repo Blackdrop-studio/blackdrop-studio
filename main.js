@@ -71,16 +71,23 @@ window.addEventListener('resize', () => {
 
 // ANIMATE
 let frame = 0;
+let zoomFrame = 0;
+animate();
 function animate() {
   requestAnimationFrame(animate);
-  if (frame < 120) {
-    camera.position.z -= 0.01;
-    frame++;
+
+  // Zoom continuo con easing leggero
+  if (zoomFrame < 180) {
+    camera.position.z -= 0.015;
+    zoomFrame++;
   }
+
+  // Rotazione manuale + controllo
+  sphere.rotation.y += 0.002;
+
   controls.update();
   composer.render();
 }
-animate();
 
 // TEXT GLITCH SEQUENCE
 const texts = [

@@ -24,10 +24,19 @@ const material = new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 1,
 const sphere = new THREE.Mesh(geometry, material);
 scene.add(sphere);
 
-// LIGHT
-const light = new THREE.PointLight(0xffffff, 4);
-light.position.set(10, 10, -10);
-scene.add(light);
+// LIGHTS
+// Luce principale morbida
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+keyLight.position.set(5, 5, 5);
+scene.add(keyLight);
+
+// Rim light laterale
+const rimLight = new THREE.DirectionalLight(0x8888ff, 0.6);
+rimLight.position.set(-5, 2, -5);
+scene.add(rimLight);
+
+// Ambient soft
+scene.add(new THREE.AmbientLight(0x222222));
 
 // CONTROLS
 const controls = new OrbitControls(camera, renderer.domElement);

@@ -3,13 +3,12 @@ import { OrbitControls } from 'https://esm.sh/three@0.152.2/examples/jsm/control
 import { EffectComposer } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { ShaderPass } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/ShaderPass.js';
-import { RGBShiftShader } from 'https://esm.sh/three@0.152.2/examples/jsm/shaders/RGBShiftShader.js';
 
 // === SCENE ===
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
+// === CAMERA ===
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 0, 10);
 
@@ -23,31 +22,56 @@ renderer.physicallyCorrectLights = true;
 renderer.toneMappingExposure = 1.25;
 renderer.dithering = true;
 
-// === SPHERE ===
+// === LIGHTING (soft & cinematic) ===
+const ambient = new THREE.AmbientLight(0x222222, 1.5);
+scene.add(ambient);
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+keyLight.position.set(3, 5, 5);
+keyLight.castShadow = false;
+scene.add(keyLight);
+
+const rimLight = new THREE.DirectionalLight(0x4455ff, 0.8);
+rimLight.position.set(-4, 2, -3);
+scene.add(rimLight);
+
+// === SHADER SPHERE (fluid surface) ===
+const uniforms = {
+  time: { value: 0 },
+  color: { value: new THREE.Color(0x111111) }
+};
+
+const vertexShader = `
+  uniform float time;
+  varying vec3 vNormal;
+  void main() {
+    vNormal = normal;
+    vec3 pos = position + normal * 0.15 * sin(time + position.y * 3.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+  }
+`;
+
+const fragmentShader = `
+  varying vec3 vNormal;
+  uniform vec3 color;
+  void main() {
+    float intensity = pow(0.9 - dot(normalize(vNormal), vec3(0.0, 0.0, 1.0)), 2.5);
+    vec3 glow = vec3(0.15, 0.2, 0.35) * intensity;
+    gl_FragColor = vec4(color + glow, 1.0);
+  }
+`;
+
 const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
-const sphereMaterial = new THREE.MeshStandardMaterial({
-  color: 0x111111,
-  roughness: 0.2,
-  metalness: 0.6,
-  emissive: 0x111122,
-  emissiveIntensity: 0.4
+const sphereMaterial = new THREE.ShaderMaterial({
+  uniforms,
+  vertexShader,
+  fragmentShader
 });
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(sphere);
 
-// === LIGHTING ===
-const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
-keyLight.position.set(4, 6, 6);
-scene.add(keyLight);
-
-const rimLight = new THREE.DirectionalLight(0xffffff, 1.5);
-rimLight.position.set(-5, 3, -5);
-scene.add(rimLight);
-
-scene.add(new THREE.AmbientLight(0x080808));
-
-// === PARTICLES ===
-const particleCount = 1200;
+// === PARTICLES (soft glow) ===
+const particleCount = 1000;
 const particleGeo = new THREE.BufferGeometry();
 const posArray = new Float32Array(particleCount * 3);
 for (let i = 0; i < particleCount * 3; i++) {
@@ -57,30 +81,27 @@ particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
 const particleMat = new THREE.PointsMaterial({
   color: 0xffffff,
-  size: 0.03,
+  size: 0.02,
   transparent: true,
-  opacity: 0.15,
+  opacity: 0.2,
   blending: THREE.AdditiveBlending,
   depthWrite: false
 });
 const particles = new THREE.Points(particleGeo, particleMat);
 scene.add(particles);
 
-// === CONTROLS ===
+// === CONTROLS (orbit) ===
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.enableZoom = false;
 controls.enablePan = false;
-controls.autoRotate = false;
+controls.enableZoom = false;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.6;
 
 // === POST FX ===
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.8);
-composer.addPass(bloomPass);
-const chromaticAberration = new ShaderPass(RGBShiftShader);
-chromaticAberration.uniforms['amount'].value = 0.0014;
-composer.addPass(chromaticAberration);
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.1, 0.4, 0.9));
 
 // === TEXT CYCLE ===
 const headline = document.getElementById('headline');
@@ -115,14 +136,6 @@ function createBlackdropText() {
   }, 200);
 }
 
-// === RESPONSIVE ===
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight);
-});
-
 // === TIMERS ===
 setTimeout(() => {
   clearInterval(textCycle);
@@ -138,26 +151,25 @@ setTimeout(() => {
   createBlackdropText();
 }, 8500);
 
-// === CAMERA + SPHERE ANIMATION ===
-let zoomFrame = 0;
-let orbitAngle = 0;
+// === RESPONSIVE ===
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
 
+// === ANIMATE ===
+let zoom = 0;
 function animate() {
   requestAnimationFrame(animate);
 
-  if (zoomFrame < 300) {
-    camera.position.z -= 0.009;
-    zoomFrame++;
+  if (zoom < 400) {
+    camera.position.z -= 0.008;
+    zoom++;
   }
 
-  orbitAngle += 0.0015;
-  camera.position.x = Math.sin(orbitAngle) * 6;
-  camera.position.y = Math.sin(orbitAngle * 0.6) * 2.5;
-  camera.lookAt(sphere.position);
-
-  sphere.rotation.y += 0.002;
-  sphere.rotation.x += 0.001;
-
+  uniforms.time.value += 0.01;
   controls.update();
   composer.render();
 }

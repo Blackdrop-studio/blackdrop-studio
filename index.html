@@ -4,39 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blackdrop Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      background-color: black;
-      color: white;
-      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #000;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      overflow: hidden;
       flex-direction: column;
+      text-align: center;
     }
-    .hero h1 {
+    h1 {
       font-size: 3rem;
       margin: 0;
-      text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: 0.05em;
     }
-    .hero p {
+    p {
       margin-top: 1rem;
+      font-size: 1.1rem;
       opacity: 0.7;
+      max-width: 600px;
     }
   </style>
 </head>
 <body>
   <div class="hero">
-    <h1>Blackdrop Studio</h1>
-    <p>Visual storytelling with impact</p>
+    <h1 class="title">Creative Studio</h1>
+    <p class="subtitle">High-end direction, visual effects, motion & design</p>
   </div>
 
-  <!-- GSAP CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <!-- Script custom -->
   <script src="script.js"></script>
 </body>
 </html>

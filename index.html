@@ -30,9 +30,27 @@
       opacity: 0.7;
       max-width: 600px;
     }
+    .loading-screen {
+  position: fixed;
+  inset: 0;
+  background-color: #000;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.loading-logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  opacity: 0;
+}
   </style>
 </head>
 <body>
+  <div class="loading-screen">
+  <div class="loading-logo">Blackdrop Studio</div>
+</div>
   <div class="hero">
     <h1 class="title">Creative Studio</h1>
     <p class="subtitle">High-end direction, visual effects, motion & design</p>

@@ -96,3 +96,7 @@ setTimeout(() => {
 setTimeout(() => {
   document.getElementById('overlay').style.display = 'none';
 }, 6500);
+
+setTimeout(() => {
+  document.getElementById('subtext').classList.add('fade-out');
+}, 4500);

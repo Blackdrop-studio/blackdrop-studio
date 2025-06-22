@@ -14,10 +14,10 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.25;
 renderer.physicallyCorrectLights = true;
 
-// === LIGHTS ===
+// === LIGHTING (cinematic) ===
 scene.add(new THREE.AmbientLight(0x222222, 1.2));
 
-const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
 keyLight.position.set(5, 5, 5);
 scene.add(keyLight);
 
@@ -25,15 +25,19 @@ const rimLight = new THREE.DirectionalLight(0xffffff, 1.2);
 rimLight.position.set(-5, 3, -5);
 scene.add(rimLight);
 
+// === GROUP (sfera + particelle) ===
+const group = new THREE.Group();
+scene.add(group);
+
 // === SPHERE ===
 const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
 
 const sphereMaterial = new THREE.MeshPhysicalMaterial({
   color: 0x000000,
-  metalness: 0.2,
-  roughness: 0.05,
-  transmission: 1.0,
-  thickness: 1.0,
+  metalness: 0.4,
+  roughness: 0.08,
+  transmission: 0.6,         // meno trasparente
+  thickness: 1.2,
   ior: 1.45,
   clearcoat: 1.0,
   clearcoatRoughness: 0.05,
@@ -43,7 +47,7 @@ const sphereMaterial = new THREE.MeshPhysicalMaterial({
 });
 
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-scene.add(sphere);
+group.add(sphere);
 
 // === INCRESPATURE ===
 sphere.geometry.computeVertexNormals();
@@ -83,14 +87,13 @@ const particleMaterial = new THREE.PointsMaterial({
   depthWrite: false
 });
 const particles = new THREE.Points(particleGeometry, particleMaterial);
-scene.add(particles);
+group.add(particles);
 
 // === CONTROLS ===
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableZoom = false;
 controls.enablePan = false;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 1.2;
+controls.enabled = false; // disabilitiamo tutto, gestiamo la rotazione noi
 
 // === RESPONSIVE ===
 window.addEventListener('resize', () => {
@@ -104,12 +107,13 @@ const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
   const elapsed = clock.getElapsedTime();
+
   updateSphereWave(elapsed);
 
-  sphere.rotation.y += 0.003;
-  sphere.rotation.x += 0.001;
+  // Ruota l’intero gruppo
+  group.rotation.y += 0.002;
+  group.rotation.x += 0.0008;
 
-  controls.update();
   renderer.render(scene, camera);
 }
 animate();

@@ -63,7 +63,7 @@ const particlesMaterial = new THREE.PointsMaterial({
   blending: THREE.AdditiveBlending,
   depthWrite: false
 });
-const particles = new THREE.Points(particleGeo, particleMat);
+const particles = new THREE.Points(particleGeo, particlesMaterial);
 scene.add(particles);
 
 // === CONTROLS ===

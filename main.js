@@ -1,75 +1,87 @@
 import * as THREE from 'https://esm.sh/three@0.152.2';
 import { OrbitControls } from 'https://esm.sh/three@0.152.2/examples/jsm/controls/OrbitControls.js';
+import { EffectComposer } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/RenderPass.js';
 
-// === SCENA E RENDERER ===
+// === SCENE ===
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
-
-const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.z = 10;
 
-const renderer = new THREE.WebGLRenderer({
-  canvas: document.getElementById('bg'),
-  antialias: true
-});
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(devicePixelRatio);
+// === RENDERER ===
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
 renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.4;
-renderer.shadowMap.enabled = false;
 
-// === MATERIALE SPHERA FLUIDA ===
-const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
-const sphereMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0x111111,
-  roughness: 0.25,
-  metalness: 0.4,
-  transmission: 0.95,
-  thickness: 1.2,
-  ior: 1.5,
-  clearcoat: 0.6,
-  clearcoatRoughness: 0.1
+// === LIGHTING (Soft Area-Like Emulation) ===
+const fillLight = new THREE.DirectionalLight(0xffffff, 1.5);
+fillLight.position.set(2, 2, 4);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight(0xffffff, 0.5);
+rimLight.position.set(-3, 3, -4);
+scene.add(rimLight);
+
+const ambient = new THREE.AmbientLight(0x111111, 1.5);
+scene.add(ambient);
+
+// === SHADER MATERIAL FOR WAVEY SPHERE ===
+const uniforms = {
+  uTime: { value: 0.0 },
+  uColor: { value: new THREE.Color(0x111111) },
+};
+
+const vertexShader = `
+  uniform float uTime;
+  varying vec3 vNormal;
+  void main() {
+    vec3 newPosition = position + normal * 0.1 * sin(3.0 * position.y + uTime * 2.0);
+    vNormal = normal;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+  }
+`;
+
+const fragmentShader = `
+  varying vec3 vNormal;
+  uniform vec3 uColor;
+  void main() {
+    float intensity = dot(normalize(vNormal), vec3(0.0, 0.0, 1.0));
+    vec3 base = mix(vec3(0.05), uColor, intensity);
+    gl_FragColor = vec4(base, 0.85);
+  }
+`;
+
+const material = new THREE.ShaderMaterial({
+  vertexShader,
+  fragmentShader,
+  uniforms,
+  transparent: true,
 });
-const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+const sphereGeometry = new THREE.SphereGeometry(1.5, 128, 128);
+const sphere = new THREE.Mesh(sphereGeometry, material);
 scene.add(sphere);
 
-// === LUCI CINEMATICHE ===
-// Luce ambientale diffusa
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-scene.add(ambientLight);
-
-// Luce direzionale soft
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-directionalLight.position.set(4, 5, 6);
-directionalLight.castShadow = false;
-scene.add(directionalLight);
-
-// Seconda luce più calda
-const warmLight = new THREE.DirectionalLight(0xffccaa, 1.2);
-warmLight.position.set(-3, 2, 4);
-scene.add(warmLight);
-
-// === PARTICELLE SOFT ===
-const particleCount = 1000;
-const particleGeometry = new THREE.BufferGeometry();
-const positions = new Float32Array(particleCount * 3);
+// === PARTICLES ===
+const particleCount = 800;
+const particleGeo = new THREE.BufferGeometry();
+const posArray = new Float32Array(particleCount * 3);
 for (let i = 0; i < particleCount * 3; i++) {
-  positions[i] = (Math.random() - 0.5) * 20;
+  posArray[i] = (Math.random() - 0.5) * 18;
 }
-particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-const particleMaterial = new THREE.PointsMaterial({
+particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+const particleMat = new THREE.PointsMaterial({
   color: 0xffffff,
-  size: 0.02,
+  size: 0.015,
+  opacity: 0.25,
   transparent: true,
-  opacity: 0.15,
-  depthWrite: false,
-  blending: THREE.AdditiveBlending
+  blending: THREE.AdditiveBlending,
 });
-const particles = new THREE.Points(particleGeometry, particleMaterial);
+const particles = new THREE.Points(particleGeo, particleMat);
 scene.add(particles);
 
-// === CONTROLLI E CAMERA ===
+// === CONTROLS ===
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotate = true;
 controls.autoRotateSpeed = 1.2;
@@ -77,16 +89,28 @@ controls.enableDamping = true;
 controls.enableZoom = false;
 controls.enablePan = false;
 
-// === TEXT OVERLAY ===
+// === TEXT CYCLE ===
 const headline = document.getElementById('headline');
 const texts = ['Loading...', 'Ninja Content Creator', 'Branding Specialist', 'Video & Visuals', 'Immersive Experiences'];
-let index = 0;
+let textIndex = 0;
 const textCycle = setInterval(() => {
-  index = (index + 1) % texts.length;
-  headline.textContent = texts[index];
+  textIndex = (textIndex + 1) % texts.length;
+  headline.textContent = texts[textIndex];
 }, 1500);
 
-// === OVERLAY E TESTO ===
+// === TEXT & FADE ===
+setTimeout(() => {
+  clearInterval(textCycle);
+  headline.classList.add('glitch-out');
+}, 6000);
+setTimeout(() => {
+  document.getElementById('overlay').style.opacity = 0;
+}, 7200);
+setTimeout(() => {
+  document.getElementById('overlay').style.display = 'none';
+  createBlackdropText();
+}, 8500);
+
 function createBlackdropText() {
   const finalText = document.createElement('h1');
   finalText.textContent = 'BLACKDROP';
@@ -94,45 +118,40 @@ function createBlackdropText() {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: 'translate(-50%, -50%) scale(1.1)',
+    transform: 'translate(-50%, -50%) scale(1.05)',
     fontSize: '3.5rem',
-    letterSpacing: '0.2em',
     fontWeight: '700',
-    color: '#ffffff',
+    letterSpacing: '0.2em',
+    color: '#fff',
     fontFamily: 'Outfit, sans-serif',
     opacity: '0',
     zIndex: '3',
-    transition: 'opacity 2s ease, transform 2s ease'
+    transition: 'opacity 2s ease, transform 2s ease',
   });
   document.body.appendChild(finalText);
-
   setTimeout(() => {
     finalText.style.opacity = '1';
     finalText.style.transform = 'translate(-50%, -50%) scale(1)';
   }, 200);
 }
 
-setTimeout(() => { clearInterval(textCycle); headline.classList.add('glitch-out'); }, 6000);
-setTimeout(() => { document.getElementById('overlay').style.opacity = 0; }, 7200);
-setTimeout(() => { document.getElementById('overlay').style.display = 'none'; createBlackdropText(); }, 8500);
-
-// === RESIZE ===
-window.addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
-
-// === ANIMAZIONE ===
+// === RENDER LOOP ===
 let zoom = 0;
-function animate() {
+function animate(t) {
   requestAnimationFrame(animate);
+  uniforms.uTime.value = t * 0.001;
   if (zoom < 300) {
     camera.position.z -= 0.008;
     zoom++;
   }
-  sphere.rotation.y += 0.003;
   controls.update();
   renderer.render(scene, camera);
 }
 animate();
+
+// === RESPONSIVE ===
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});

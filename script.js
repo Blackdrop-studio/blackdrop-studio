@@ -1,17 +1,14 @@
-// Animazione titolo con GSAP
-document.addEventListener("DOMContentLoaded", function () {
-  gsap.from(".hero h1", {
-    y: -100,
-    opacity: 0,
-    duration: 1.5,
-    ease: "power4.out"
-  });
+gsap.from(".title", {
+  duration: 1.2,
+  y: 50,
+  opacity: 0,
+  ease: "power3.out"
+});
 
-  gsap.from(".hero p", {
-    y: 100,
-    opacity: 0,
-    duration: 1.5,
-    ease: "power4.out",
-    delay: 0.5
-  });
+gsap.from(".subtitle", {
+  duration: 1.4,
+  y: 30,
+  opacity: 0,
+  delay: 0.6,
+  ease: "power3.out"
 });

@@ -4,21 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blackdrop Studio</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: white;
+      font-family: 'Helvetica Neue', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .hero p {
+      margin-top: 1rem;
+      opacity: 0.7;
+    }
+  </style>
 </head>
 <body>
-
-  <section class="hero">
+  <div class="hero">
     <h1>Blackdrop Studio</h1>
-    <p>Creative Direction. Motion. Design.</p>
-  </section>
+    <p>Visual storytelling with impact</p>
+  </div>
 
-  <section class="scroll">
-    <div class="content">Scroll Down</div>
-  </section>
-
-  <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
-  <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Script custom -->
   <script src="script.js"></script>
 </body>
 </html>

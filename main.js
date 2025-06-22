@@ -29,7 +29,7 @@ const sphereMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.25,
   metalness: 0.3,
   emissive: new THREE.Color(0x222244),
-  emissiveIntensity: 0.7,
+  emissiveIntensity: 1,
   envMapIntensity: 0.5
 });
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);

@@ -25,26 +25,38 @@ renderer.dithering = true;
 // LIQUID SPHERE
 const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
 const sphereMaterial = new THREE.MeshPhysicalMaterial({
-  roughness: 0.3,
-  metalness: 0.8,
+  color: 0x0a0a0a,
+  roughness: 0.15,
+  metalness: 0.85,
   clearcoat: 1,
-  transmission: 0.7,
-  thickness: 1.5,
-  color: new THREE.Color(0x111111)
+  clearcoatRoughness: 0.1,
+  transmission: 0.6,
+  thickness: 1.2,
+  ior: 1.45,
+  sheen: 0.2
 });
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(sphere);
 
 // LIGHTING
-const backLight = new THREE.DirectionalLight(0xffffff, 1.2);
-backLight.position.set(-3, 0, -5);
+// LUCI
+const backLight = new THREE.DirectionalLight(0x3377ff, 0.8);
+backLight.position.set(-2, 1, -5);
+backLight.castShadow = false;
 scene.add(backLight);
 
-const keyLight = new THREE.SpotLight(0xffffff, 2.5, 50, Math.PI / 6, 0.5);
-keyLight.position.set(5, 5, 5);
+const keyLight = new THREE.SpotLight(0xffffff, 1.8, 30, Math.PI / 5, 0.7, 2);
+keyLight.position.set(3, 5, 5);
+keyLight.target = sphere;
+keyLight.castShadow = false;
 scene.add(keyLight);
 
-scene.add(new THREE.AmbientLight(0x111111));
+const fillLight = new THREE.PointLight(0xffaa88, 0.5, 20);
+fillLight.position.set(-3, -2, 4);
+scene.add(fillLight);
+
+const ambientLight = new THREE.AmbientLight(0x111111, 1.5);
+scene.add(ambientLight);
 
 // PARTICLES
 const particleCount = 1200;

@@ -19,69 +19,66 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.physicallyCorrectLights = true;
-renderer.toneMappingExposure = 1.25;
+renderer.toneMappingExposure = 1.2;
 renderer.dithering = true;
 
-// === LIGHTING (soft & cinematic) ===
-const ambient = new THREE.AmbientLight(0x222222, 1.5);
-scene.add(ambient);
+// === LIGHTING ===
+scene.add(new THREE.AmbientLight(0xffffff, 0.3));
 
-const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
-keyLight.position.set(3, 5, 5);
-keyLight.castShadow = false;
-scene.add(keyLight);
+const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
+light1.position.set(3, 4, 5);
+scene.add(light1);
 
-const rimLight = new THREE.DirectionalLight(0x4455ff, 0.8);
-rimLight.position.set(-4, 2, -3);
-scene.add(rimLight);
+const light2 = new THREE.DirectionalLight(0xffffff, 0.7);
+light2.position.set(-4, -2, -5);
+scene.add(light2);
 
-// === SHADER SPHERE (fluid surface) ===
-const uniforms = {
-  time: { value: 0 },
-  color: { value: new THREE.Color(0x111111) }
-};
-
-const vertexShader = `
-  uniform float time;
-  varying vec3 vNormal;
-  void main() {
-    vNormal = normal;
-    vec3 pos = position + normal * 0.15 * sin(time + position.y * 3.0);
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-  }
-`;
-
-const fragmentShader = `
-  varying vec3 vNormal;
-  uniform vec3 color;
-  void main() {
-    float intensity = pow(0.9 - dot(normalize(vNormal), vec3(0.0, 0.0, 1.0)), 2.5);
-    vec3 glow = vec3(0.15, 0.2, 0.35) * intensity;
-    gl_FragColor = vec4(color + glow, 1.0);
-  }
-`;
-
+// === SPHERE ===
 const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
-const sphereMaterial = new THREE.ShaderMaterial({
-  uniforms,
-  vertexShader,
-  fragmentShader
+const sphereMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x111111,
+  metalness: 0.2,
+  roughness: 0.15,
+  transmission: 1.0,
+  thickness: 0.6,
+  ior: 1.3,
+  transparent: true,
+  opacity: 1.0
 });
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(sphere);
 
-// === PARTICLES (soft glow) ===
-const particleCount = 1000;
+// === DEFORM VERTICES ===
+const basePositions = sphere.geometry.attributes.position.array.slice();
+let time = 0;
+function updateSphereDeformation() {
+  const pos = sphere.geometry.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const ix = i * 3, iy = ix + 1, iz = ix + 2;
+    const ox = basePositions[ix];
+    const oy = basePositions[iy];
+    const oz = basePositions[iz];
+    const n = Math.sqrt(ox * ox + oy * oy + oz * oz);
+    const f = 0.04 * Math.sin(time * 0.6 + n * 4.0);
+    pos.array[ix] = ox + (ox / n) * f;
+    pos.array[iy] = oy + (oy / n) * f;
+    pos.array[iz] = oz + (oz / n) * f;
+  }
+  pos.needsUpdate = true;
+}
+
+// === PARTICLES ===
+const particleCount = 800;
 const particleGeo = new THREE.BufferGeometry();
 const posArray = new Float32Array(particleCount * 3);
 for (let i = 0; i < particleCount * 3; i++) {
-  posArray[i] = (Math.random() - 0.5) * 20;
+  posArray[i] = (Math.random() - 0.5) * 18;
 }
 particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
 const particleMat = new THREE.PointsMaterial({
   color: 0xffffff,
-  size: 0.02,
+  size: 0.015,
   transparent: true,
   opacity: 0.2,
   blending: THREE.AdditiveBlending,
@@ -90,18 +87,18 @@ const particleMat = new THREE.PointsMaterial({
 const particles = new THREE.Points(particleGeo, particleMat);
 scene.add(particles);
 
-// === CONTROLS (orbit) ===
+// === CONTROLS ===
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.enablePan = false;
-controls.enableZoom = false;
 controls.autoRotate = true;
-controls.autoRotateSpeed = 0.6;
+controls.autoRotateSpeed = 0.5;
+controls.enableZoom = false;
+controls.enablePan = false;
+controls.enableDamping = true;
 
 // === POST FX ===
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.1, 0.4, 0.9));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.1, 0.4, 0.85));
 
 // === TEXT CYCLE ===
 const headline = document.getElementById('headline');
@@ -163,13 +160,14 @@ window.addEventListener('resize', () => {
 let zoom = 0;
 function animate() {
   requestAnimationFrame(animate);
-
   if (zoom < 400) {
     camera.position.z -= 0.008;
     zoom++;
   }
 
-  uniforms.time.value += 0.01;
+  time += 0.01;
+  updateSphereDeformation();
+
   controls.update();
   composer.render();
 }

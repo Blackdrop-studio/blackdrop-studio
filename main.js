@@ -81,6 +81,27 @@ function animate() {
     camera.position.z -= 0.015;
     zoomFrame++;
   }
+  let index = 0;
+const headline = document.getElementById('headline');
+const cycle = setInterval(() => {
+  index = (index + 1) % texts.length;
+  headline.textContent = texts[index];
+}, 1500);
+
+// Glitch finale
+setTimeout(() => {
+  clearInterval(cycle);
+  headline.classList.add('glitch-out');
+}, 6000);
+
+// Rimuovi overlay in sync con zoom
+setTimeout(() => {
+  document.getElementById('overlay').style.opacity = 0;
+}, 7200);
+
+setTimeout(() => {
+  document.getElementById('overlay').style.display = 'none';
+}, 8500);
 
   // Rotazione manuale + controllo
   sphere.rotation.y += 0.002;

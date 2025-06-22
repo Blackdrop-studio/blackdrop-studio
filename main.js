@@ -3,6 +3,8 @@ import { OrbitControls } from 'https://esm.sh/three@0.152.2/examples/jsm/control
 import { EffectComposer } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/ShaderPass.js';
+import { RGBShiftShader } from 'https://esm.sh/three@0.152.2/examples/jsm/shaders/RGBShiftShader.js';
 
 // === SCENE ===
 const scene = new THREE.Scene();
@@ -22,15 +24,13 @@ renderer.dithering = true;
 
 // === SPHERE ===
 const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
-const sphereMaterial = new THREE.MeshPhysicalMaterial({
-  transmission: 0.9,
-  roughness: 0.05,
-  thickness: 2,
-  clearcoat: 1,
-  clearcoatRoughness: 0,
-  reflectivity: 0.2,
-  metalness: 0,
-  color: new THREE.Color(0x111111)
+const sphereMaterial = new THREE.MeshStandardMaterial({
+  color: 0x111111,
+  roughness: 0.25,
+  metalness: 0.3,
+  emissive: new THREE.Color(0x222244),
+  emissiveIntensity: 0.7,
+  envMapIntensity: 0.5
 });
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(sphere);
@@ -55,11 +55,11 @@ for (let i = 0; i < particleCount * 3; i++) {
 }
 particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
-const particleMat = new THREE.PointsMaterial({
-  size: 0.02,
+const particlesMaterial = new THREE.PointsMaterial({
   color: 0xffffff,
+  size: 0.015,
   transparent: true,
-  opacity: 0.4,
+  opacity: 0.2,
   blending: THREE.AdditiveBlending,
   depthWrite: false
 });
@@ -79,6 +79,9 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.85);
 composer.addPass(bloomPass);
+const chromaticAberration = new ShaderPass(RGBShiftShader);
+chromaticAberration.uniforms['amount'].value = 0.0012;
+composer.addPass(chromaticAberration);
 
 // === TEXT CYCLE ===
 const headline = document.getElementById('headline');

@@ -10,34 +10,42 @@ const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg')
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.25;
+renderer.physicallyCorrectLights = true;
 
 // === LIGHTS ===
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x111111, 1.2);
-scene.add(hemiLight);
+scene.add(new THREE.AmbientLight(0x222222, 1.2));
 
-const areaLight = new THREE.RectAreaLight(0xffffff, 3, 5, 5);
-areaLight.position.set(3, 3, 3);
-scene.add(areaLight);
+const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+keyLight.position.set(5, 5, 5);
+scene.add(keyLight);
 
-// === SPHERE WITH PHYSICAL MATERIAL (LIQUID LOOK) ===
+const rimLight = new THREE.DirectionalLight(0xffffff, 1.2);
+rimLight.position.set(-5, 3, -5);
+scene.add(rimLight);
+
+// === SPHERE ===
 const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
 
-// Mini increspature animate nei vertex (usa modificatore dinamico)
-const sphere = new THREE.Mesh(sphereGeometry, new THREE.MeshPhysicalMaterial({
+const sphereMaterial = new THREE.MeshPhysicalMaterial({
   color: 0x000000,
   metalness: 0.2,
   roughness: 0.05,
-  transmission: 1.0,         // Attiva trasparenza realistica
-  thickness: 1.0,            // Profondità materiale traslucido
-  ior: 1.45,                 // Indice di rifrazione tipo vetro/olio
-  clearcoat: 1.0,            // Finitura lucida
-  clearcoatRoughness: 0.05,  // Leggera irregolarità sulla superficie
+  transmission: 1.0,
+  thickness: 1.0,
+  ior: 1.45,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.05,
   reflectivity: 0.8,
   attenuationDistance: 1.0,
   attenuationColor: new THREE.Color(0x222222)
-}));
+});
 
-// INCRESPATURE DINAMICHE leggere via vertex modifier
+const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+scene.add(sphere);
+
+// === INCRESPATURE ===
 sphere.geometry.computeVertexNormals();
 const positions = sphere.geometry.attributes.position.array;
 const vertexCount = positions.length;
@@ -49,7 +57,7 @@ function updateSphereWave(time) {
     const y = pos.array[i + 1];
     const z = pos.array[i + 2];
     const r = Math.sqrt(x * x + y * y + z * z);
-    const ripple = 0.02 * Math.sin(r * 10 - time * 2);
+    const ripple = 0.015 * Math.sin(r * 10 - time * 2);
     pos.array[i] = x * (1 + ripple);
     pos.array[i + 1] = y * (1 + ripple);
     pos.array[i + 2] = z * (1 + ripple);
@@ -58,16 +66,14 @@ function updateSphereWave(time) {
   sphere.geometry.computeVertexNormals();
 }
 
-scene.add(sphere);
-
 // === PARTICLES ===
 const particleGeometry = new THREE.BufferGeometry();
 const particleCount = 600;
-const pos = new Float32Array(particleCount * 3);
+const posArr = new Float32Array(particleCount * 3);
 for (let i = 0; i < particleCount * 3; i++) {
-  pos[i] = (Math.random() - 0.5) * 16;
+  posArr[i] = (Math.random() - 0.5) * 16;
 }
-particleGeometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+particleGeometry.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
 const particleMaterial = new THREE.PointsMaterial({
   size: 0.02,
   color: 0xffffff,
@@ -94,23 +100,16 @@ window.addEventListener('resize', () => {
 });
 
 // === ANIMATE ===
-let clock = new THREE.Clock();
-function animate() {
-  requestAnimationFrame(animate);
-  uniforms.uTime.value = clock.getElapsedTime();
-  controls.update();
-  renderer.render(scene, camera);
-}
-animate();
-
+const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
   const elapsed = clock.getElapsedTime();
-
   updateSphereWave(elapsed);
+
   sphere.rotation.y += 0.003;
   sphere.rotation.x += 0.001;
 
   controls.update();
   renderer.render(scene, camera);
 }
+animate();

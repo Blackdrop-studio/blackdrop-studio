@@ -43,16 +43,14 @@ const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, windo
 composer.addPass(bloomPass);
 
 // PARTICLES
-const particlesGeometry = new THREE.BufferGeometry();
-const particlesCount = 500;
-const posArray = new Float32Array(particlesCount * 3);
-for (let i = 0; i < particlesCount * 3; i++) {
-  posArray[i] = (Math.random() - 0.5) * 20;
-}
-particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-const particlesMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.03, transparent: true, opacity: 0.4 });
-const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-scene.add(particles);
+const particlesMaterial = new THREE.PointsMaterial({
+  color: 0xffffff,
+  size: 0.05,
+  transparent: true,
+  opacity: 0.5,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false
+});
 
 // RESPONSIVE
 window.addEventListener('resize', () => {

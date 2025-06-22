@@ -25,9 +25,9 @@ scene.add(light);
 
 // Controlli orbitanti
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableZoom = false;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 1.4;
+controls.autoRotateSpeed = 2;
+controls.enableDamping = true;
+controls.dampingFactor = 0.04;
 
 // Bloom
 const composer = new EffectComposer(renderer);
@@ -65,13 +65,18 @@ const particles = new THREE.Points(particlesGeometry, particlesMaterial);
 scene.add(particles);
 
 // Animazione
+let frame = 0;
 function animate() {
   requestAnimationFrame(animate);
+
+  if (frame < 120) { // primi 2 secondi
+    camera.position.z -= 0.01;
+    frame++;
+  }
+
   controls.update();
-  particles.rotation.y += 0.0008;
   composer.render();
 }
-animate();
 
 // Testo dinamico
 const texts = [
@@ -89,7 +94,29 @@ setInterval(() => {
   headline.textContent = texts[index];
 }, 1500);
 
-// Overlay svanisce
+// Testo dinamico + glitch finale
+let index = 0;
+const headline = document.getElementById('headline');
+const texts = [
+  'Loading...',
+  'Ninja Content Creator',
+  'Branding Specialist',
+  'Video & Visuals',
+  'Immersive Experiences'
+];
+
+const cycle = setInterval(() => {
+  index = (index + 1) % texts.length;
+  headline.textContent = texts[index];
+}, 1500);
+
+// Glitch finale + fade
 setTimeout(() => {
-  document.getElementById('overlay').style.opacity = 0;
-}, 4000);
+  clearInterval(cycle);
+  headline.classList.add('glitch-out');
+}, 4500);
+
+// Rimuove overlay
+setTimeout(() => {
+  document.getElementById('overlay').style.display = 'none';
+}, 6500);

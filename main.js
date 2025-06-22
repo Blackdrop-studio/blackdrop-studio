@@ -1,12 +1,7 @@
 import * as THREE from 'https://esm.sh/three@0.152.2';
 import { OrbitControls } from 'https://esm.sh/three@0.152.2/examples/jsm/controls/OrbitControls.js';
-import { EffectComposer } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { ShaderPass } from 'https://esm.sh/three@0.152.2/examples/jsm/postprocessing/ShaderPass.js';
-import { RGBShiftShader } from 'https://esm.sh/three@0.152.2/examples/jsm/shaders/RGBShiftShader.js';
 
-// SCENA E RENDERER
+// === SCENA E RENDERER ===
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
@@ -19,112 +14,125 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(devicePixelRatio);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMappingExposure = 1.2;
-renderer.dithering = true;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.4;
+renderer.shadowMap.enabled = false;
 
-// SFERE E ANIMATION VISCOSA MINORE
-const sphereGeo = new THREE.SphereGeometry(1.6, 128, 128);
-const sphereMat = new THREE.MeshPhysicalMaterial({
-  transmission: 0.9,
-  roughness: 0.2,
-  metalness: 0.1,
-  clearcoat: 0.8,
-  color: 0x111111
+// === MATERIALE SPHERA FLUIDA ===
+const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
+const sphereMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x111111,
+  roughness: 0.25,
+  metalness: 0.4,
+  transmission: 0.95,
+  thickness: 1.2,
+  ior: 1.5,
+  clearcoat: 0.6,
+  clearcoatRoughness: 0.1
 });
-const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(sphere);
 
-// LUCI MORBIDE
-const key = new THREE.PointLight(0xffffff, 1.2);
-key.position.set(5, 5, 5);
-scene.add(key);
+// === LUCI CINEMATICHE ===
+// Luce ambientale diffusa
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+scene.add(ambientLight);
 
-const fill = new THREE.PointLight(0xffffff, 0.5);
-fill.position.set(-5, -3, 5);
-scene.add(fill);
+// Luce direzionale soft
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+directionalLight.position.set(4, 5, 6);
+directionalLight.castShadow = false;
+scene.add(directionalLight);
 
-scene.add(new THREE.AmbientLight(0x202020));
+// Seconda luce più calda
+const warmLight = new THREE.DirectionalLight(0xffccaa, 1.2);
+warmLight.position.set(-3, 2, 4);
+scene.add(warmLight);
 
-// PARTICELLE MORE SOFT
-const pGeo = new THREE.BufferGeometry();
-const count = 1000;
-const pos = new Float32Array(count*3);
-for (let i = 0; i < count*3; i++) pos[i] = (Math.random() - 0.5) * 20;
-pGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-
-const particlesMaterial = new THREE.PointsMaterial({
+// === PARTICELLE SOFT ===
+const particleCount = 1000;
+const particleGeometry = new THREE.BufferGeometry();
+const positions = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount * 3; i++) {
+  positions[i] = (Math.random() - 0.5) * 20;
+}
+particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const particleMaterial = new THREE.PointsMaterial({
   color: 0xffffff,
   size: 0.02,
   transparent: true,
   opacity: 0.15,
-  blending: THREE.AdditiveBlending,
-  depthWrite: false
+  depthWrite: false,
+  blending: THREE.AdditiveBlending
 });
-const particles = new THREE.Points(pGeo, particlesMaterial);
+const particles = new THREE.Points(particleGeometry, particleMaterial);
 scene.add(particles);
 
-// CONTROLLI
+// === CONTROLLI E CAMERA ===
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotate = true;
-controls.autoRotateSpeed = 0.8;
-controls.enableZoom = false;
+controls.autoRotateSpeed = 1.2;
 controls.enableDamping = true;
-controls.dampingFactor = 0.04;
+controls.enableZoom = false;
+controls.enablePan = false;
 
-// POST-PROCESSING (bloom + leggero chroma)
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 1.2, 0.4, 0.85));
-const rgb = new ShaderPass(RGBShiftShader);
-rgb.uniforms['amount'].value = 0.0006;
-composer.addPass(rgb);
-
-// TEXTO DINAMICO E SEQUENZA
+// === TEXT OVERLAY ===
 const headline = document.getElementById('headline');
 const texts = ['Loading...', 'Ninja Content Creator', 'Branding Specialist', 'Video & Visuals', 'Immersive Experiences'];
-let idx = 0;
-const cycle = setInterval(() => {
-  idx = (idx+1)%texts.length;
-  headline.textContent = texts[idx];
-},1500);
-setTimeout(() => { clearInterval(cycle); headline.classList.add('glitch-out'); }, 6000);
+let index = 0;
+const textCycle = setInterval(() => {
+  index = (index + 1) % texts.length;
+  headline.textContent = texts[index];
+}, 1500);
+
+// === OVERLAY E TESTO ===
+function createBlackdropText() {
+  const finalText = document.createElement('h1');
+  finalText.textContent = 'BLACKDROP';
+  Object.assign(finalText.style, {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%) scale(1.1)',
+    fontSize: '3.5rem',
+    letterSpacing: '0.2em',
+    fontWeight: '700',
+    color: '#ffffff',
+    fontFamily: 'Outfit, sans-serif',
+    opacity: '0',
+    zIndex: '3',
+    transition: 'opacity 2s ease, transform 2s ease'
+  });
+  document.body.appendChild(finalText);
+
+  setTimeout(() => {
+    finalText.style.opacity = '1';
+    finalText.style.transform = 'translate(-50%, -50%) scale(1)';
+  }, 200);
+}
+
+setTimeout(() => { clearInterval(textCycle); headline.classList.add('glitch-out'); }, 6000);
 setTimeout(() => { document.getElementById('overlay').style.opacity = 0; }, 7200);
 setTimeout(() => { document.getElementById('overlay').style.display = 'none'; createBlackdropText(); }, 8500);
 
-// FUNZIONI TEXT FINALI
-function createBlackdropText() {
-  const h = document.createElement('h1');
-  h.textContent = 'BLACKDROP';
-  Object.assign(h.style, {
-    position:'absolute',top:'50%',left:'50%',
-    transform:'translate(-50%,-50%) scale(1)',
-    fontSize:'3.5rem',letterSpacing:'0.2em',opacity:'0',
-    color:'#fff',fontFamily:'Outfit',fontWeight:'700',
-    transition:'opacity 2s ease, transform 2s ease'
-  });
-  document.body.appendChild(h);
-  setTimeout(()=>{h.style.opacity='1'; h.style.transform='translate(-50%,-50%) scale(1.05)';},200);
-  setTimeout(()=>{h.style.transform='translate(-50%,-50%) scale(1)';},2000);
-}
-
-// RISIZE
+// === RESIZE ===
 window.addEventListener('resize', () => {
-  camera.aspect = innerWidth/innerHeight;
+  camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
-  composer.setSize(innerWidth, innerHeight);
 });
 
-// LOOP
+// === ANIMAZIONE ===
 let zoom = 0;
-function animate(){
+function animate() {
   requestAnimationFrame(animate);
-  if (zoom<300){ camera.position.z -= 0.006; zoom++; }
-  sphere.rotation.y += 0.0025;
-  sphere.rotation.x += 0.0012;
+  if (zoom < 300) {
+    camera.position.z -= 0.008;
+    zoom++;
+  }
+  sphere.rotation.y += 0.003;
   controls.update();
-  composer.render();
+  renderer.render(scene, camera);
 }
 animate();

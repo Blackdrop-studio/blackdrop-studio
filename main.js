@@ -19,41 +19,45 @@ const areaLight = new THREE.RectAreaLight(0xffffff, 3, 5, 5);
 areaLight.position.set(3, 3, 3);
 scene.add(areaLight);
 
-// === SHADER MATERIAL WITH RIPPLE ===
-const uniforms = {
-  uTime: { value: 0 },
-  uColor: { value: new THREE.Color(0x111111) }
-};
-
-const vertexShader = `
-  uniform float uTime;
-  varying vec3 vNormal;
-  void main() {
-    vNormal = normal;
-    vec3 pos = position + normal * 0.1 * sin(uTime + position.y * 3.0 + position.x * 3.0);
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-  }
-`;
-
-const fragmentShader = `
-  uniform vec3 uColor;
-  varying vec3 vNormal;
-  void main() {
-    float intensity = dot(normalize(vNormal), vec3(0.0, 0.0, 1.0));
-    vec3 base = mix(vec3(0.05), uColor, intensity);
-    gl_FragColor = vec4(base, 0.8);
-  }
-`;
-
-const material = new THREE.ShaderMaterial({
-  uniforms,
-  vertexShader,
-  fragmentShader,
-  transparent: true
-});
-
+// === SPHERE WITH PHYSICAL MATERIAL (LIQUID LOOK) ===
 const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
-const sphere = new THREE.Mesh(sphereGeometry, material);
+
+// Mini increspature animate nei vertex (usa modificatore dinamico)
+const sphere = new THREE.Mesh(sphereGeometry, new THREE.MeshPhysicalMaterial({
+  color: 0x000000,
+  metalness: 0.2,
+  roughness: 0.05,
+  transmission: 1.0,         // Attiva trasparenza realistica
+  thickness: 1.0,            // Profondità materiale traslucido
+  ior: 1.45,                 // Indice di rifrazione tipo vetro/olio
+  clearcoat: 1.0,            // Finitura lucida
+  clearcoatRoughness: 0.05,  // Leggera irregolarità sulla superficie
+  reflectivity: 0.8,
+  attenuationDistance: 1.0,
+  attenuationColor: new THREE.Color(0x222222)
+}));
+
+// INCRESPATURE DINAMICHE leggere via vertex modifier
+sphere.geometry.computeVertexNormals();
+const positions = sphere.geometry.attributes.position.array;
+const vertexCount = positions.length;
+
+function updateSphereWave(time) {
+  const pos = sphere.geometry.attributes.position;
+  for (let i = 0; i < vertexCount; i += 3) {
+    const x = pos.array[i];
+    const y = pos.array[i + 1];
+    const z = pos.array[i + 2];
+    const r = Math.sqrt(x * x + y * y + z * z);
+    const ripple = 0.02 * Math.sin(r * 10 - time * 2);
+    pos.array[i] = x * (1 + ripple);
+    pos.array[i + 1] = y * (1 + ripple);
+    pos.array[i + 2] = z * (1 + ripple);
+  }
+  pos.needsUpdate = true;
+  sphere.geometry.computeVertexNormals();
+}
+
 scene.add(sphere);
 
 // === PARTICLES ===
@@ -98,3 +102,15 @@ function animate() {
   renderer.render(scene, camera);
 }
 animate();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const elapsed = clock.getElapsedTime();
+
+  updateSphereWave(elapsed);
+  sphere.rotation.y += 0.003;
+  sphere.rotation.x += 0.001;
+
+  controls.update();
+  renderer.render(scene, camera);
+}

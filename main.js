@@ -98,24 +98,17 @@ const texts = [
   'Immersive Experiences'
 ];
 
-let index = 0;
-const headline = document.getElementById('headline');
-const cycle = setInterval(() => {
-  index = (index + 1) % texts.length;
-  headline.textContent = texts[index];
-}, 1500);
-
-// glitch finale + fade
+// Glitch finale
 setTimeout(() => {
   clearInterval(cycle);
   headline.classList.add('glitch-out');
-}, 4500);
+}, 6000);
 
-// rimuove overlay
+// Rimuovi overlay in sync con zoom
+setTimeout(() => {
+  document.getElementById('overlay').style.opacity = 0;
+}, 7200);
+
 setTimeout(() => {
   document.getElementById('overlay').style.display = 'none';
-}, 6500);
-
-setTimeout(() => {
-  document.getElementById('subtext').classList.add('fade-out');
-}, 4500);
+}, 8500);

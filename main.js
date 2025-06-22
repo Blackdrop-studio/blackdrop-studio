@@ -12,6 +12,11 @@ camera.position.z = 8;
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.physicallyCorrectLights = true;
+renderer.toneMappingExposure = 1.1;
+renderer.dithering = true;
 
 // SPHERE
 const geometry = new THREE.SphereGeometry(2.2, 64, 64);

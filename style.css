@@ -59,3 +59,30 @@ body {
   50%  { opacity: 0.4; }
   100% { opacity: 1; }
 }
+
+@keyframes glitchFade {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-1px, 1px);
+  }
+  40% {
+    transform: translate(1px, -2px);
+  }
+  60% {
+    transform: translate(-3px, 1px);
+  }
+  80% {
+    transform: translate(2px, 2px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+}
+
+#headline.glitch-out {
+  animation: glitchFade 2s ease-in-out forwards;
+}

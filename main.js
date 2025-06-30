@@ -1,7 +1,11 @@
 import * as THREE from 'https://esm.sh/three@0.152.2';
 import { OrbitControls } from 'https://esm.sh/three@0.152.2/examples/jsm/controls/OrbitControls.js';
+import { RectAreaLightUniformsLib } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLightUniformsLib.js';
+import { RectAreaLight } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLight.js';
 
-// === SCENE SETUP ===
+RectAreaLightUniformsLib.init();
+
+// === SCENE ===
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.z = 8;
@@ -12,17 +16,18 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.physicallyCorrectLights = true;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1;
+renderer.toneMappingExposure = 1.2;
 renderer.dithering = true;
 
-// === MATERIAL & SPHERE ===
-const const sphereMaterial = new THREE.MeshPhysicalMaterial({
+// === GEOMETRY & MATERIAL ===
+const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
+const sphereMaterial = new THREE.MeshPhysicalMaterial({
   transmission: 1,
-  roughness: 0.05,
+  roughness: 0.08,
   thickness: 1.2,
   metalness: 0.15,
   clearcoat: 1,
-  clearcoatRoughness: 0.04,
+  clearcoatRoughness: 0.03,
   reflectivity: 0.6,
   ior: 1.45,
   attenuationColor: new THREE.Color(0x111111),
@@ -32,21 +37,14 @@ const const sphereMaterial = new THREE.MeshPhysicalMaterial({
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(sphere);
 
-
-
-// === LIGHTING ===
-import { RectAreaLight } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLight.js';
-import { RectAreaLightUniformsLib } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLightUniformsLib.js';
-
-RectAreaLightUniformsLib.init();
-
-const areaLight1 = new RectAreaLight(0xffffff, 2.5, 5, 5);
+// === LIGHTS ===
+const areaLight1 = new RectAreaLight(0xffffff, 3.5, 5, 5);
 areaLight1.position.set(3, 3, 5);
 areaLight1.lookAt(0, 0, 0);
 scene.add(areaLight1);
 
-const areaLight2 = new RectAreaLight(0xffffff, 1.8, 4, 4);
-areaLight2.position.set(-3, -2, 4);
+const areaLight2 = new RectAreaLight(0xffffff, 2.5, 5, 5);
+areaLight2.position.set(-4, -2, 5);
 areaLight2.lookAt(0, 0, 0);
 scene.add(areaLight2);
 
@@ -67,27 +65,25 @@ const particleMaterial = new THREE.PointsMaterial({
   depthWrite: false
 });
 const particles = new THREE.Points(particleGeometry, particleMaterial);
+particles.rotation.set(0, 0, 0);
 scene.add(particles);
 
-// === CONTROLS ===
+// === CONTROLS (DISABLED) ===
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enabled = false;
 
-// === RESPONSIVE ===
+// === RESIZE ===
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// === ANIMATE ===
-const clock = new THREE.Clock();
+// === ANIMATION ===
 function animate() {
   requestAnimationFrame(animate);
   sphere.rotation.y += 0.002;
-  sphere.rotation.x += 0.001;
-  particles.rotation.y += 0.0008;
-  sphereMaterial.uniforms.uTime.value = clock.getElapsedTime();
+  particles.rotation.y += 0.0006;
   renderer.render(scene, camera);
 }
 animate();

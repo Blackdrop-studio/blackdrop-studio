@@ -16,13 +16,17 @@ renderer.toneMappingExposure = 1.0;
 renderer.dithering = true;
 
 // === LIGHTS ===
-const softBackLight = new THREE.SpotLight(0xffffff, 0.8, 30, Math.PI / 2, 0.8, 1);
+const softBackLight = new THREE.DirectionalLight(0xffffff, 1.4);
 softBackLight.position.set(0, 0, -6);
-softBackLight.target.position.set(0, 0, 0);
+softBackLight.castShadow = false;
 scene.add(softBackLight);
-scene.add(softBackLight.target);
 
-const fillLight = new THREE.HemisphereLight(0xeeeeee, 0x111111, 0.25);
+const areaLight = new THREE.RectAreaLight(0xffffff, 4, 8, 8);
+areaLight.position.set(3, 3, 3);
+areaLight.lookAt(0, 0, 0);
+scene.add(areaLight);
+
+const fillLight = new THREE.HemisphereLight(0xeeeeee, 0x111111, 0.3);
 scene.add(fillLight);
 
 // === SPHERE WITH PHYSICAL MATERIAL (LIQUID LOOK) ===

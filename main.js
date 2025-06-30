@@ -31,7 +31,7 @@ scene.add(areaLight);
 const ambient = new THREE.AmbientLight(0x111111);
 scene.add(ambient);
 
-// === MATERIAL & SPHERE ===
+// === SPHERE ===
 const geometry = new THREE.SphereGeometry(1.6, 128, 128);
 const material = new THREE.MeshPhysicalMaterial({
   color: 0x000000,
@@ -49,7 +49,7 @@ const material = new THREE.MeshPhysicalMaterial({
 const sphere = new THREE.Mesh(geometry, material);
 scene.add(sphere);
 
-// === PARTICELLE ===
+// === PARTICLES ===
 const particleGeometry = new THREE.BufferGeometry();
 const particleCount = 400;
 const posArray = new Float32Array(particleCount * 3);
@@ -68,7 +68,7 @@ const particleMaterial = new THREE.PointsMaterial({
 const particles = new THREE.Points(particleGeometry, particleMaterial);
 scene.add(particles);
 
-// === INCRESPATURE ===
+// === WAVE DEFORMATION ===
 const basePositions = geometry.attributes.position.array.slice();
 const positionAttr = geometry.attributes.position;
 function updateRipples(time) {

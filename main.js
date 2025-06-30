@@ -6,15 +6,16 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.z = 8;
 
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), alpha: true, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.physicallyCorrectLights = true;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.dithering = true;
 
-// === LIGHTING ===
-scene.add(new THREE.HemisphereLight(0xffffff, 0x111111, 1.2));
-
-// BACK LIGHT FIXA
+// === LIGHTS ===
 const softBackLight = new THREE.SpotLight(0xffffff, 0.8, 30, Math.PI / 2, 0.8, 1);
 softBackLight.position.set(0, 0, -6);
 softBackLight.target.position.set(0, 0, 0);
@@ -24,112 +25,87 @@ scene.add(softBackLight.target);
 const fillLight = new THREE.HemisphereLight(0xeeeeee, 0x111111, 0.25);
 scene.add(fillLight);
 
-renderer.toneMappingExposure = 1.0;
-renderer.physicallyCorrectLights = true;
-
-// === SPHERE SETUP ===
-const geo = new THREE.SphereGeometry(1.6, 128, 128);
-const mat = new THREE.MeshPhysicalMaterial({
-  color: 0x111111,
+// === SPHERE WITH PHYSICAL MATERIAL (LIQUID LOOK) ===
+const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
+const sphereMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x000000,
   metalness: 0.2,
-  roughness: 0.08,
-  transmission: 0.95,
-  thickness: 1.5,
-  ior: 1.2,
-  clearcoat: 1,
-  clearcoatRoughness: 0.08
+  roughness: 0.05,
+  transmission: 1.0,
+  thickness: 1.0,
+  ior: 1.45,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.05,
+  reflectivity: 0.8,
+  attenuationDistance: 1.0,
+  attenuationColor: new THREE.Color(0x222222)
 });
-const sphere = new THREE.Mesh(geo, mat);
+const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+sphere.geometry.computeVertexNormals();
 scene.add(sphere);
 
-// === DYNAMIC VERTEX WAVES (INCRESPATURE) ===
-const originalPositions = geo.attributes.position.array.slice();
-const updateRipples = (time) => {
-  const pos = geo.attributes.position;
-  for (let i = 0; i < pos.count; i++) {
-    const ix = i * 3;
-    const x = originalPositions[ix];
-    const y = originalPositions[ix + 1];
-    const z = originalPositions[ix + 2];
-    const r = Math.sqrt(x * x + y * y + z * z);
-    const ripple = 0.015 * Math.sin(r * 10 - time * 2);
-    pos.array[ix] = x + x * ripple;
-    pos.array[ix + 1] = y + y * ripple;
-    pos.array[ix + 2] = z + z * ripple;
-  }
-  pos.needsUpdate = true;
-  geo.computeVertexNormals();
-};
-
 // === PARTICLES ===
-const particleGeo = new THREE.BufferGeometry();
-const count = 700;
-const posArray = new Float32Array(count * 3);
-for (let i = 0; i < count * 3; i++) {
-  posArray[i] = (Math.random() - 0.5) * 18;
+const particleGeometry = new THREE.BufferGeometry();
+const particleCount = 600;
+const pos = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount * 3; i++) {
+  pos[i] = (Math.random() - 0.5) * 16;
 }
-particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-const particleMat = new THREE.PointsMaterial({
-  color: 0xffffff,
+particleGeometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+const particleMaterial = new THREE.PointsMaterial({
   size: 0.02,
+  color: 0xffffff,
   transparent: true,
   opacity: 0.25,
   blending: THREE.AdditiveBlending,
   depthWrite: false
 });
-const particles = new THREE.Points(particleGeo, particleMat);
+const particles = new THREE.Points(particleGeometry, particleMaterial);
 scene.add(particles);
 
 // === CONTROLS ===
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.autoRotate = true;
-controls.autoRotateSpeed = 1.2;
 controls.enableZoom = false;
 controls.enablePan = false;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 1.2;
 
-// === TEXT ROTATION ===
-const phrases = [
-  'Loading...',
-  'Ninja Content Creator',
-  'Branding Specialist',
-  'Video & Visuals',
-  'Immersive Experiences'
-];
-
-const headline = document.getElementById('headline');
-let i = 0;
-const cycle = setInterval(() => {
-  i = (i + 1) % phrases.length;
-  headline.textContent = phrases[i];
-}, 1500);
-
-setTimeout(() => {
-  clearInterval(cycle);
-  headline.classList.add('glitch-out');
-}, 6000);
-
-setTimeout(() => {
-  document.getElementById('overlay').style.opacity = 0;
-}, 7500);
-
-setTimeout(() => {
-  document.getElementById('overlay').style.display = 'none';
-}, 9000);
-
-// === LOOP ===
+// === RESPONSIVE ===
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const clock = new THREE.Clock();
+// === INCRESPATURE DINAMICHE ===
+const positions = sphere.geometry.attributes.position.array;
+const vertexCount = positions.length;
+function updateSphereWave(time) {
+  const pos = sphere.geometry.attributes.position;
+  for (let i = 0; i < vertexCount; i += 3) {
+    const x = pos.array[i];
+    const y = pos.array[i + 1];
+    const z = pos.array[i + 2];
+    const r = Math.sqrt(x * x + y * y + z * z);
+    const ripple = 0.02 * Math.sin(r * 10 - time * 2);
+    pos.array[i] = x * (1 + ripple);
+    pos.array[i + 1] = y * (1 + ripple);
+    pos.array[i + 2] = z * (1 + ripple);
+  }
+  pos.needsUpdate = true;
+  sphere.geometry.computeVertexNormals();
+}
+
+// === ANIMATION LOOP ===
+let clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
-  const t = clock.getElapsedTime();
-  updateRipples(t);
-  particles.rotation.y += 0.0008;
-  sphere.rotation.y += 0.001;
+  const elapsed = clock.getElapsedTime();
+
+  updateSphereWave(elapsed);
+  sphere.rotation.y += 0.003;
+  sphere.rotation.x += 0.001;
+
   controls.update();
   renderer.render(scene, camera);
 }

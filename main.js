@@ -15,16 +15,17 @@ renderer.outputEncoding = THREE.sRGBEncoding;
 scene.add(new THREE.HemisphereLight(0xffffff, 0x111111, 1.2));
 
 // BACK LIGHT FIXA
-import { RectAreaLightUniformsLib } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLightUniformsLib.js';
-import { RectAreaLightHelper } from 'https://esm.sh/three@0.152.2/examples/jsm/helpers/RectAreaLightHelper.js';
+const softBackLight = new THREE.SpotLight(0xffffff, 0.8, 30, Math.PI / 2, 0.8, 1);
+softBackLight.position.set(0, 0, -6);
+softBackLight.target.position.set(0, 0, 0);
+scene.add(softBackLight);
+scene.add(softBackLight.target);
 
-RectAreaLightUniformsLib.init();
+const fillLight = new THREE.HemisphereLight(0xeeeeee, 0x111111, 0.25);
+scene.add(fillLight);
 
-// Luce rettangolare soft dietro
-const softBack = new THREE.RectAreaLight(0xffffff, 30, 8, 8);
-softBack.position.set(0, 0, -6);
-softBack.lookAt(0, 0, 0);
-scene.add(softBack);
+renderer.toneMappingExposure = 1.0;
+renderer.physicallyCorrectLights = true;
 
 // === SPHERE SETUP ===
 const geo = new THREE.SphereGeometry(1.6, 128, 128);

@@ -16,7 +16,7 @@ renderer.toneMappingExposure = 1.0;
 renderer.dithering = true;
 
 // === LIGHTS ===
-const softBackLight = new THREE.DirectionalLight(0xffffff, 10);
+const softBackLight = new THREE.DirectionalLight(0xffffff, 1000);
 softBackLight.position.set(0, 0, -6);
 softBackLight.castShadow = false;
 scene.add(softBackLight);

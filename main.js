@@ -1,6 +1,7 @@
 import * as THREE from 'https://esm.sh/three@0.152.2';
-import { RectAreaLightUniformsLib } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { OrbitControls } from 'https://esm.sh/three@0.152.2/examples/jsm/controls/OrbitControls.js';
+import { RectAreaLight } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLight.js';
+import { RectAreaLightUniformsLib } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLightUniformsLib.js';
 
 RectAreaLightUniformsLib.init();
 
@@ -19,10 +20,6 @@ renderer.toneMappingExposure = 1.1;
 renderer.dithering = true;
 
 // === LIGHTING ===
-import { RectAreaLight } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLight.js';
-import { RectAreaLightUniformsLib } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLightUniformsLib.js';
-RectAreaLightUniformsLib.init();
-
 const softLight = new RectAreaLight(0xffffff, 3.2, 8, 8);
 softLight.position.set(0, 3, -4);
 softLight.lookAt(0, 0, 0);
@@ -50,11 +47,10 @@ const material = new THREE.MeshPhysicalMaterial({
   attenuationColor: new THREE.Color(0x111111),
   attenuationDistance: 1.5
 });
-
 const sphere = new THREE.Mesh(geometry, material);
 scene.add(sphere);
 
-// === PARTICLES (optional, background stars) ===
+// === PARTICLES ===
 const particleGeometry = new THREE.BufferGeometry();
 const particleCount = 500;
 const posArray = new Float32Array(particleCount * 3);
@@ -73,9 +69,9 @@ const particleMaterial = new THREE.PointsMaterial({
 const particles = new THREE.Points(particleGeometry, particleMaterial);
 scene.add(particles);
 
-// === WAVE DEFORMATION ===
+// === ANIMATED DEFORMATION ===
 const positionAttr = geometry.attributes.position;
-const basePositions = positionAttr.array.slice(); // copy original
+const basePositions = positionAttr.array.slice();
 function updateRipples(time) {
   for (let i = 0; i < positionAttr.count; i++) {
     const ix = i * 3;
@@ -103,7 +99,7 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// === ANIMATION ===
+// === ANIMATE ===
 const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);

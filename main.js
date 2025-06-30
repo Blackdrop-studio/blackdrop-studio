@@ -19,25 +19,36 @@ renderer.toneMappingExposure = 1.1;
 renderer.dithering = true;
 
 // === LIGHTING ===
-const areaLight = new THREE.RectAreaLight(0xffffff, 6, 12, 12);
-areaLight.position.set(0, 0, -6);
-areaLight.lookAt(0, 0, 0);
-scene.add(areaLight);
+import { RectAreaLight } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLight.js';
+import { RectAreaLightUniformsLib } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLightUniformsLib.js';
+RectAreaLightUniformsLib.init();
+
+const softLight = new RectAreaLight(0xffffff, 3.2, 8, 8);
+softLight.position.set(0, 3, -4);
+softLight.lookAt(0, 0, 0);
+scene.add(softLight);
+
+const rimLight = new THREE.DirectionalLight(0xffffff, 0.4);
+rimLight.position.set(-3, 2, 3);
+scene.add(rimLight);
+
+const ambient = new THREE.AmbientLight(0x222222);
+scene.add(ambient);
 
 // === MATERIAL & SPHERE ===
 const geometry = new THREE.SphereGeometry(1.6, 128, 128);
 const material = new THREE.MeshPhysicalMaterial({
   color: 0x000000,
-  metalness: 0.2,
-  roughness: 0.05,
-  transmission: 1,
-  thickness: 1.4,
-  ior: 1.45,
-  clearcoat: 1,
-  clearcoatRoughness: 0.04,
-  reflectivity: 0.6,
+  metalness: 0.3,
+  roughness: 0.1,
+  transmission: 1.0,
+  thickness: 2.2,
+  ior: 1.33,
+  reflectivity: 0.4,
+  clearcoat: 0.9,
+  clearcoatRoughness: 0.07,
   attenuationColor: new THREE.Color(0x111111),
-  attenuationDistance: 0.8
+  attenuationDistance: 1.5
 });
 
 const sphere = new THREE.Mesh(geometry, material);

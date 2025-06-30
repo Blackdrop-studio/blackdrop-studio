@@ -1,72 +1,100 @@
 import * as THREE from 'https://esm.sh/three@0.152.2';
 import { OrbitControls } from 'https://esm.sh/three@0.152.2/examples/jsm/controls/OrbitControls.js';
 
-// === SCENE ===
+// SCENE
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.z = 8;
+camera.position.z = 9;
 
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), alpha: true, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.outputEncoding = THREE.sRGBEncoding;
 
-// === LIGHTING ===
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x111111, 1.2);
-scene.add(hemiLight);
+// LIGHT
+scene.add(new THREE.HemisphereLight(0xffffff, 0x111111, 1.5));
 
-// === SPHERE ===
-const geometry = new THREE.SphereGeometry(1.6, 128, 128);
-const material = new THREE.MeshPhysicalMaterial({
-  color: 0x000000,
-  metalness: 0.4,
-  roughness: 0.05,
+// SPHERE
+const geo = new THREE.SphereGeometry(1.6, 128, 128);
+const mat = new THREE.MeshPhysicalMaterial({
+  color: 0x0a0a0a,
+  metalness: 0.6,
+  roughness: 0.1,
+  transmission: 1.0,
+  thickness: 1.5,
   clearcoat: 1.0,
-  clearcoatRoughness: 0.1,
-  transmission: 0.9,
-  ior: 1.45,
-  thickness: 0.5
+  reflectivity: 1.0
 });
-const sphere = new THREE.Mesh(geometry, material);
+const sphere = new THREE.Mesh(geo, mat);
 scene.add(sphere);
 
-// === PARTICLES ===
-const particleGeometry = new THREE.BufferGeometry();
-const count = 800;
-const positions = new Float32Array(count * 3);
+// PARTICLES
+const particleGeo = new THREE.BufferGeometry();
+const count = 700;
+const posArray = new Float32Array(count * 3);
 for (let i = 0; i < count * 3; i++) {
-  positions[i] = (Math.random() - 0.5) * 12;
+  posArray[i] = (Math.random() - 0.5) * 18;
 }
-particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-const particleMaterial = new THREE.PointsMaterial({
+particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+const particleMat = new THREE.PointsMaterial({
   color: 0xffffff,
-  size: 0.015,
+  size: 0.02,
   transparent: true,
-  opacity: 0.2,
-  blending: THREE.AdditiveBlending
+  opacity: 0.25,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false
 });
-const particles = new THREE.Points(particleGeometry, particleMaterial);
+const particles = new THREE.Points(particleGeo, particleMat);
 scene.add(particles);
 
-// === CONTROLS ===
+// CONTROLS
 const controls = new OrbitControls(camera, renderer.domElement);
+controls.autoRotate = true;
 controls.enableZoom = false;
 controls.enablePan = false;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 1.5;
+controls.autoRotateSpeed = 1.2;
 
-// === RESIZE ===
+// TEXT ROTATION
+const phrases = [
+  'Loading...',
+  'Ninja Content Creator',
+  'Branding Specialist',
+  'Video & Visuals',
+  'Immersive Experiences'
+];
+
+const headline = document.getElementById('headline');
+let i = 0;
+const cycle = setInterval(() => {
+  i = (i + 1) % phrases.length;
+  headline.textContent = phrases[i];
+}, 1500);
+
+// EXIT SEQUENCE
+setTimeout(() => {
+  clearInterval(cycle);
+  headline.classList.add('glitch-out');
+}, 6000);
+
+setTimeout(() => {
+  document.getElementById('overlay').style.opacity = 0;
+}, 7500);
+
+setTimeout(() => {
+  document.getElementById('overlay').style.display = 'none';
+}, 9000);
+
+// LOOP
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// === ANIMATION LOOP ===
 function animate() {
   requestAnimationFrame(animate);
-  sphere.rotation.y += 0.002;
-  particles.rotation.y += 0.001;
+  particles.rotation.y += 0.0008;
+  sphere.rotation.y += 0.001;
   controls.update();
   renderer.render(scene, camera);
 }

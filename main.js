@@ -16,35 +16,39 @@ renderer.toneMappingExposure = 1.1;
 renderer.dithering = true;
 
 // === MATERIAL & SPHERE ===
-const sphereGeometry = new THREE.SphereGeometry(1.5, 128, 128);
-const sphereMaterial = new THREE.ShaderMaterial({
-  vertexShader: `
-    uniform float uTime;
-    varying vec3 vNormal;
-    void main() {
-      vec3 pos = position + normal * 0.1 * sin(uTime + position.y * 10.0);
-      vNormal = normal;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-    }
-  `,
-  fragmentShader: `
-    varying vec3 vNormal;
-    void main() {
-      float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
-      gl_FragColor = vec4(vec3(0.05, 0.05, 0.05) + intensity, 1.0);
-    }
-  `,
-  uniforms: {
-    uTime: { value: 0.0 }
-  },
-  transparent: false
+const const sphereMaterial = new THREE.MeshPhysicalMaterial({
+  transmission: 1,
+  roughness: 0.05,
+  thickness: 1.2,
+  metalness: 0.15,
+  clearcoat: 1,
+  clearcoatRoughness: 0.04,
+  reflectivity: 0.6,
+  ior: 1.45,
+  attenuationColor: new THREE.Color(0x111111),
+  attenuationDistance: 0.8,
+  color: 0x000000
 });
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(sphere);
 
+
+
 // === LIGHTING ===
-const ambient = new THREE.AmbientLight(0x222222);
-scene.add(ambient);
+import { RectAreaLight } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLight.js';
+import { RectAreaLightUniformsLib } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLightUniformsLib.js';
+
+RectAreaLightUniformsLib.init();
+
+const areaLight1 = new RectAreaLight(0xffffff, 2.5, 5, 5);
+areaLight1.position.set(3, 3, 5);
+areaLight1.lookAt(0, 0, 0);
+scene.add(areaLight1);
+
+const areaLight2 = new RectAreaLight(0xffffff, 1.8, 4, 4);
+areaLight2.position.set(-3, -2, 4);
+areaLight2.lookAt(0, 0, 0);
+scene.add(areaLight2);
 
 // === PARTICLES ===
 const particleGeometry = new THREE.BufferGeometry();

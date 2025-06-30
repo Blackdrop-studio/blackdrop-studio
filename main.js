@@ -1,4 +1,3 @@
-import * as THREE from 'https://esm.sh/three';
 import * as THREE from 'https://esm.sh/three@0.152.2';
 import { OrbitControls } from 'https://esm.sh/three@0.152.2/examples/jsm/controls/OrbitControls.js';
 
@@ -13,48 +12,50 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.physicallyCorrectLights = true;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
+renderer.toneMappingExposure = 1.1;
 renderer.dithering = true;
 
-// === LIGHTS ===
-const keyLight = new THREE.SpotLight(0xffffff, 1.5, 100, Math.PI / 4, 1, 2);
-keyLight.position.set(5, 5, 5);
-keyLight.target.position.set(0, 0, 0);
-scene.add(keyLight);
-scene.add(keyLight.target);
-
-const fillLight = new THREE.HemisphereLight(0xeeeeee, 0x111111, 0.3);
-scene.add(fillLight);
-
-// === SPHERE WITH PHYSICAL MATERIAL (LIQUID LOOK) ===
-const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);
-const sphereMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0x000000,
-  metalness: 0.1,
-  roughness: 0.05,
-  transmission: 0.8,
-  thickness: 0.5,
-  ior: 1.45,
-  clearcoat: 1.0,
-  clearcoatRoughness: 0.1,
-  reflectivity: 0.2,
-  attenuationDistance: 0.8,
-  attenuationColor: new THREE.Color(0x111111)
+// === MATERIAL & SPHERE ===
+const sphereGeometry = new THREE.SphereGeometry(1.5, 128, 128);
+const sphereMaterial = new THREE.ShaderMaterial({
+  vertexShader: `
+    uniform float uTime;
+    varying vec3 vNormal;
+    void main() {
+      vec3 pos = position + normal * 0.1 * sin(uTime + position.y * 10.0);
+      vNormal = normal;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+    }
+  `,
+  fragmentShader: `
+    varying vec3 vNormal;
+    void main() {
+      float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+      gl_FragColor = vec4(vec3(0.05, 0.05, 0.05) + intensity, 1.0);
+    }
+  `,
+  uniforms: {
+    uTime: { value: 0.0 }
+  },
+  transparent: false
 });
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-sphere.geometry.computeVertexNormals();
 scene.add(sphere);
+
+// === LIGHTING ===
+const ambient = new THREE.AmbientLight(0x222222);
+scene.add(ambient);
 
 // === PARTICLES ===
 const particleGeometry = new THREE.BufferGeometry();
-const particleCount = 800;
+const particleCount = 600;
 const pos = new Float32Array(particleCount * 3);
 for (let i = 0; i < particleCount * 3; i++) {
-  pos[i] = (Math.random() - 0.5) * 18;
+  pos[i] = (Math.random() - 0.5) * 16;
 }
 particleGeometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
 const particleMaterial = new THREE.PointsMaterial({
-  size: 0.015,
+  size: 0.02,
   color: 0xffffff,
   transparent: true,
   opacity: 0.2,
@@ -66,28 +67,7 @@ scene.add(particles);
 
 // === CONTROLS ===
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableZoom = false;
-controls.enablePan = false;
 controls.enabled = false;
-
-// === INCRESPATURE DINAMICHE ===
-const positions = sphere.geometry.attributes.position.array;
-const vertexCount = positions.length;
-function updateSphereWave(time) {
-  const pos = sphere.geometry.attributes.position;
-  for (let i = 0; i < vertexCount; i += 3) {
-    const x = pos.array[i];
-    const y = pos.array[i + 1];
-    const z = pos.array[i + 2];
-    const r = Math.sqrt(x * x + y * y + z * z);
-    const ripple = 0.02 * Math.sin(r * 8 - time * 2);
-    pos.array[i] = x * (1 + ripple);
-    pos.array[i + 1] = y * (1 + ripple);
-    pos.array[i + 2] = z * (1 + ripple);
-  }
-  pos.needsUpdate = true;
-  sphere.geometry.computeVertexNormals();
-}
 
 // === RESPONSIVE ===
 window.addEventListener('resize', () => {
@@ -96,40 +76,14 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// === ANIMATION LOOP ===
-let clock = new THREE.Clock();
+// === ANIMATE ===
+const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
-  const elapsed = clock.getElapsedTime();
-  updateSphereWave(elapsed);
   sphere.rotation.y += 0.002;
   sphere.rotation.x += 0.001;
-  particles.rotation.y += 0.001;
-  renderer.render(scene, camera);
-}
-animate();
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
-camera.position.z = 6;
-
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio);
-
-// Light
-const light = new THREE.HemisphereLight(0xffffff, 0x222222, 1.2);
-scene.add(light);
-
-// Sphere
-const geo = new THREE.SphereGeometry(1.5, 128, 128);
-const mat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.2, metalness: 0.3 });
-const sphere = new THREE.Mesh(geo, mat);
-scene.add(sphere);
-
-// Animate
-function animate() {
-  requestAnimationFrame(animate);
-  sphere.rotation.y += 0.002;
+  particles.rotation.y += 0.0008;
+  sphereMaterial.uniforms.uTime.value = clock.getElapsedTime();
   renderer.render(scene, camera);
 }
 animate();

@@ -16,18 +16,19 @@ renderer.toneMappingExposure = 1.0;
 renderer.dithering = true;
 
 // === LIGHTS ===
-const softBackLight = new THREE.DirectionalLight(0xffffff, 1000);
-softBackLight.position.set(0, 0, -6);
-softBackLight.castShadow = false;
-scene.add(softBackLight);
+const import { RectAreaLight, RectAreaLightUniformsLib } from 'https://esm.sh/three@0.152.2/examples/jsm/lights/RectAreaLight.js';
+import { RectAreaLightHelper } from 'https://esm.sh/three@0.152.2/examples/jsm/helpers/RectAreaLightHelper.js';
 
-const areaLight = new THREE.RectAreaLight(0xffffff, 4, 8, 8);
-areaLight.position.set(3, 3, 3);
-areaLight.lookAt(0, 0, 0);
-scene.add(areaLight);
+RectAreaLightUniformsLib.init();
 
-const fillLight = new THREE.HemisphereLight(0xeeeeee, 0x111111, 0.3);
-scene.add(fillLight);
+const area = new RectAreaLight(0xffffff, 5, 10, 10);
+area.position.set(0, 0, 5);
+area.lookAt(0, 0, 0);
+scene.add(area);
+// Helper per debugging:
+scene.add(new RectAreaLightHelper(area));
+
+scene.add(new THREE.AmbientLight(0x222222));
 
 // === SPHERE WITH PHYSICAL MATERIAL (LIQUID LOOK) ===
 const sphereGeometry = new THREE.SphereGeometry(1.6, 128, 128);

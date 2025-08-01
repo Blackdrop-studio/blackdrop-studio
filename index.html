@@ -1,19 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Blackdrop Studio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+  <title>Thomas Villa – Portfolio</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
+  <!-- GSAP & ScrollTrigger -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
-<body>
-  <canvas id="bgCanvas"></canvas>
-  
-  <div id="overlay">
-    <h1 id="tagline">Loading...</h1>
-  </div>
 
-  <script type="module" src="main.js"></script>
+<body>
+  <!-- --- HERO --- -->
+  <header class="hero">
+    <h1 class="hero__title">THOMAS VILLA</h1>
+    <p class="hero__tagline">Graphic Designer · Videomaker · Photographer</p>
+  </header>
+
+  <!-- --- MARQUEE (testo che scorre) --- -->
+  <section class="marquee" aria-hidden="true">
+    <div class="marquee__inner" data-speed="40">
+      <span>PHOTO · VIDEO · MOTION GRAPHICS · BRANDING · </span>
+      <span>PHOTO · VIDEO · MOTION GRAPHICS · BRANDING · </span>
+    </div>
+  </section>
+
+  <!-- --- GALLERY --- -->
+  <main class="gallery">
+    <!-- card -->
+    <article class="card">
+      <img src="https://picsum.photos/800/1000?random=1" alt="Project 01" />
+      <div class="card__info">
+        <h2>Project 01</h2>
+        <p>Key visual &amp; motion assets for cinema launch campaign.</p>
+      </div>
+    </article>
+
+    <!-- DUPLICA LA CARD PER ALTRI PROGETTI -->
+    <article class="card">
+      <img src="https://picsum.photos/800/1000?random=2" alt="Project 02" />
+      <div class="card__info">
+        <h2>Project 02</h2>
+        <p>Immersive 3-D bucket animation (After Effects 2025 3-D).</p>
+      </div>
+    </article>
+
+    <article class="card">
+      <img src="https://picsum.photos/800/1000?random=3" alt="Project 03" />
+      <div class="card__info">
+        <h2>Project 03</h2>
+        <p>Brand identity &amp; promotional teaser for Apple Orio opening.</p>
+      </div>
+    </article>
+  </main>
+
+  <!-- --- ABOUT / CTA --- -->
+  <section class="about">
+    <h2>Let’s Work Together</h2>
+    <p>Currently available for freelance and in-house collaborations in
+       <strong>motion design, 3-D, video production & brand systems</strong>.</p>
+    <a class="btn" href="mailto:hello@thomasvilladesign.it">Contact Me →</a>
+  </section>
+
+  <!-- --- FOOTER --- -->
+  <footer class="footer">
+    <p>© 2025 Thomas Villa. All rights reserved.</p>
+  </footer>
 </body>
 </html>

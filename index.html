@@ -1,71 +1,55 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Thomas Villa – Portfolio</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
-  <!-- GSAP & ScrollTrigger -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js" defer></script>
-  <script src="main.js" defer></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blackdrop Portfolio</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js" defer></script>
+  <script type="module" src="js/app.js" defer></script>
 </head>
-
 <body>
-  <!-- --- HERO --- -->
-  <header class="hero">
-    <h1 class="hero__title">THOMAS VILLA</h1>
-    <p class="hero__tagline">Graphic Designer · Videomaker · Photographer</p>
-  </header>
+  <div id="loader">
+    <h1>Blackdrop is loading...</h1>
+  </div>
 
-  <!-- --- MARQUEE (testo che scorre) --- -->
-  <section class="marquee" aria-hidden="true">
-    <div class="marquee__inner" data-speed="40">
-      <span>PHOTO · VIDEO · MOTION GRAPHICS · BRANDING · </span>
-      <span>PHOTO · VIDEO · MOTION GRAPHICS · BRANDING · </span>
-    </div>
-  </section>
+  <nav id="navbar">
+    <ul>
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
 
-  <!-- --- GALLERY --- -->
-  <main class="gallery">
-    <!-- card -->
-    <article class="card">
-      <img src="https://picsum.photos/800/1000?random=1" alt="Project 01" />
-      <div class="card__info">
-        <h2>Project 01</h2>
-        <p>Key visual &amp; motion assets for cinema launch campaign.</p>
+  <canvas id="bg-canvas"></canvas>
+
+  <main class="smooth-scroll" data-scroll-container>
+    <section id="hero" class="hero" data-scroll-section>
+      <h1 data-scroll data-scroll-speed="1">Blackdrop</h1>
+      <p data-scroll data-scroll-speed="2">Visual storytelling in motion.</p>
+    </section>
+
+    <section id="projects" class="projects" data-scroll-section>
+      <div class="project" data-scroll>
+        <video src="assets/video1.mp4" autoplay muted loop></video>
+        <h2>Project Title</h2>
       </div>
-    </article>
-
-    <!-- DUPLICA LA CARD PER ALTRI PROGETTI -->
-    <article class="card">
-      <img src="https://picsum.photos/800/1000?random=2" alt="Project 02" />
-      <div class="card__info">
-        <h2>Project 02</h2>
-        <p>Immersive 3-D bucket animation (After Effects 2025 3-D).</p>
+      <div class="project" data-scroll>
+        <img src="assets/photo1.jpg" alt="Photo Project" />
+        <h2>Photography Work</h2>
       </div>
-    </article>
+    </section>
 
-    <article class="card">
-      <img src="https://picsum.photos/800/1000?random=3" alt="Project 03" />
-      <div class="card__info">
-        <h2>Project 03</h2>
-        <p>Brand identity &amp; promotional teaser for Apple Orio opening.</p>
-      </div>
-    </article>
+    <section id="contact" class="contact" data-scroll-section>
+      <p>Contact me at: <a href="mailto:thom@blackdrop.studio">thom@blackdrop.studio</a></p>
+    </section>
+
+    <footer data-scroll-section>
+      <p>&copy; 2025 Blackdrop</p>
+    </footer>
   </main>
-
-  <!-- --- ABOUT / CTA --- -->
-  <section class="about">
-    <h2>Let’s Work Together</h2>
-    <p>Currently available for freelance and in-house collaborations in
-       <strong>motion design, 3-D, video production & brand systems</strong>.</p>
-    <a class="btn" href="mailto:hello@thomasvilladesign.it">Contact Me →</a>
-  </section>
-
-  <!-- --- FOOTER --- -->
-  <footer class="footer">
-    <p>© 2025 Thomas Villa. All rights reserved.</p>
-  </footer>
 </body>
 </html>

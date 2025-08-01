@@ -1,7 +1,7 @@
-// app.js - Core JS for Blackdrop site
+// app.js - Blackdrop Portfolio
 import LocomotiveScroll from 'https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/+esm';
 
-// Canvas trail logic
+// SCIA con il mouse
 const canvas = document.getElementById('bg-canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -34,14 +34,14 @@ function drawTrail() {
 }
 drawTrail();
 
-// Loader fade
+// Loader
 window.addEventListener('load', () => {
   const loader = document.getElementById('loader');
   loader.style.opacity = 0;
   setTimeout(() => loader.style.display = 'none', 500);
 });
 
-// Locomotive Scroll Init
+// Scroll fluido
 window.addEventListener('load', () => {
   const scroll = new LocomotiveScroll({
     el: document.querySelector('[data-scroll-container]'),

@@ -1,21 +1,24 @@
-/* style.css - Blackdrop */
+/* Blackdrop Portfolio – Style */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: #000;
   color: #fff;
   overflow-x: hidden;
 }
+
 canvas#bg-canvas {
   position: fixed;
   top: 0;
   left: 0;
   z-index: -1;
 }
+
 #loader {
   position: fixed;
   top: 0;
@@ -30,6 +33,7 @@ canvas#bg-canvas {
   z-index: 9999;
   transition: opacity 0.5s ease;
 }
+
 #navbar {
   position: fixed;
   top: 0;
@@ -38,20 +42,24 @@ canvas#bg-canvas {
   padding: 1rem 2rem;
   z-index: 1000;
 }
+
 #navbar ul {
   list-style: none;
   display: flex;
   gap: 2rem;
 }
+
 #navbar a {
   color: #fff;
   text-decoration: none;
   font-weight: 500;
   transition: opacity 0.2s;
 }
+
 #navbar a:hover {
   opacity: 0.6;
 }
+
 section {
   padding: 15vh 10vw;
   min-height: 100vh;
@@ -59,42 +67,51 @@ section {
   flex-direction: column;
   justify-content: center;
 }
+
 .hero h1 {
   font-size: 4rem;
   font-weight: 700;
   margin-bottom: 1rem;
 }
+
 .hero p {
   font-size: 1.5rem;
   max-width: 600px;
 }
+
 .projects .project {
   margin-bottom: 5rem;
 }
+
 .projects video,
 .projects img {
   width: 100%;
   border-radius: 1rem;
   margin-bottom: 1rem;
 }
+
 .projects h2 {
   font-weight: 500;
   font-size: 1.2rem;
 }
+
 footer {
   text-align: center;
   padding: 4rem 2rem;
   font-size: 0.9rem;
   opacity: 0.5;
 }
+
 @media screen and (max-width: 768px) {
   #navbar ul {
     flex-direction: column;
     gap: 1rem;
   }
+
   .hero h1 {
     font-size: 2.5rem;
   }
+
   .hero p {
     font-size: 1.1rem;
   }

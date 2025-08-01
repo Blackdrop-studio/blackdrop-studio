@@ -1,24 +1,52 @@
-/* ========== 1.  MARQUEE INFINITA ========== */
-document.querySelectorAll(".marquee__inner").forEach(($inner)=>{
-  const speed = $inner.dataset.speed || 40;         // px / sec
-  const width = $inner.scrollWidth;
-  gsap.fromTo($inner, {x:0}, {
-    x: -width/2,
-    ease:"none",
-    duration: width/speed,
-    repeat:-1
-  });
+// app.js - Core JS for Blackdrop site
+import LocomotiveScroll from 'https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/+esm';
+
+// Canvas trail logic
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const trail = [];
+const maxTrail = 50;
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 });
 
-/* ========== 2.  SCROLL-REVEAL CARD ========== */
-gsap.utils.toArray(".card").forEach(card=>{
-  gsap.to(card,{
-    y:0, opacity:1, duration:.8, ease:"power3.out",
-    scrollTrigger:{trigger:card,start:"top 80%"}
-  });
+window.addEventListener('mousemove', (e) => {
+  trail.push({ x: e.clientX, y: e.clientY, alpha: 1 });
+  if (trail.length > maxTrail) trail.shift();
 });
 
-/* ========== 3.  SMOOTH ENTRY HERO TEXT ========== */
-gsap.from(".hero__title span",{ /* split words into spans in CSS not needed */
-  y:80, opacity:0, stagger:.05, duration:1.2, ease:"power4.out"
+function drawTrail() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < trail.length; i++) {
+    const p = trail[i];
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+    ctx.fill();
+    p.alpha *= 0.96;
+  }
+  requestAnimationFrame(drawTrail);
+}
+drawTrail();
+
+// Loader fade
+window.addEventListener('load', () => {
+  const loader = document.getElementById('loader');
+  loader.style.opacity = 0;
+  setTimeout(() => loader.style.display = 'none', 500);
+});
+
+// Locomotive Scroll Init
+window.addEventListener('load', () => {
+  const scroll = new LocomotiveScroll({
+    el: document.querySelector('[data-scroll-container]'),
+    smooth: true,
+    smartphone: { smooth: true },
+    tablet: { smooth: true },
+  });
 });

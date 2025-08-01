@@ -1,73 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Blackdrop Portfolio</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-</head>
-<body>
-  <div id="loader"><h1>Blackdrop is loading...</h1></div>
+<section id="projects" data-scroll-section>
+  <div class="container">
+    
+    <div class="filter-buttons">
+      <button data-filter="all">All</button>
+      <button data-filter="video">Video</button>
+      <button data-filter="photo">Photo</button>
+    </div>
 
-  <nav id="navbar">
-    <ul>
-      <li><a href="#hero">Home</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
-
-  <canvas id="bg-canvas"></canvas>
-
-  <main data-scroll-container>
-    <section id="hero" data-scroll-section>
-      <div class="container">
-        <h1 data-scroll data-scroll-speed="1">Blackdrop</h1>
-        <p data-scroll data-scroll-speed="2">A curated showcase of visuals in motion.</p>
+    <div class="project" data-type="video" data-scroll>
+      <div class="media">
+        <video src="https://cdn.coverr.co/videos/coverr-a-lone-boat-8479/1080p.mp4" autoplay muted loop playsinline></video>
       </div>
-    </section>
-
-    <section id="projects" data-scroll-section>
-      <div class="container">
-
-        <div class="project" data-scroll>
-          <div class="media">
-            <video src="https://cdn.coverr.co/videos/coverr-a-lone-boat-8479/1080p.mp4" autoplay muted loop playsinline></video>
-          </div>
-          <div class="info">
-            <h2>Solitude</h2>
-            <p>Cinematic short filmed at dawn.</p>
-          </div>
-        </div>
-
-        <div class="project" data-scroll>
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1549921296-3a6b5b6a30d5?w=900" alt="Architecture" />
-          </div>
-          <div class="info">
-            <h2>Geometry</h2>
-            <p>Light & shadow on concrete structures.</p>
-          </div>
-        </div>
-
+      <div class="info">
+        <h2>Solitude</h2>
+        <p>Cinematic short filmed at dawn.</p>
       </div>
-    </section>
+    </div>
 
-    <section id="contact" data-scroll-section>
-      <div class="container">
-        <p>Let’s connect: <a href="mailto:thom@blackdrop.studio">thom@blackdrop.studio</a></p>
+    <div class="project" data-type="photo" data-scroll>
+      <div class="media">
+        <img src="https://images.unsplash.com/photo-1549921296-3a6b5b6a30d5?w=900" alt="Architecture" />
       </div>
-    </section>
-
-    <footer data-scroll-section>
-      <div class="container">
-        <p>&copy; 2025 Blackdrop</p>
+      <div class="info">
+        <h2>Geometry</h2>
+        <p>Concrete structures & light play.</p>
       </div>
-    </footer>
-  </main>
+    </div>
 
-  <!-- CORRETTO: un solo script module -->
-  <script type="module" src="js/main.js"></script>
-</body>
-</html>
+    <div class="project" data-type="video" data-scroll>
+      <div class="media">
+        <video src="https://cdn.coverr.co/videos/coverr-looking-out-the-car-window-2893/1080p.mp4" autoplay muted loop playsinline></video>
+      </div>
+      <div class="info">
+        <h2>Passing</h2>
+        <p>Suburban melancholy captured handheld.</p>
+      </div>
+    </div>
+
+    <div class="project" data-type="photo" data-scroll>
+      <div class="media">
+        <img src="https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=900" alt="Portrait" />
+      </div>
+      <div class="info">
+        <h2>Persona</h2>
+        <p>Portrait series exploring identity.</p>
+      </div>
+    </div>
+
+  </div>
+</section>

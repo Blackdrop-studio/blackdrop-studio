@@ -133,3 +133,22 @@ footer{
   #navbar{gap:1rem;font-size:.8rem}
   .hero-title{font-size:3rem}
 }
+
+/* HERO fix – usa l’id corretto */
+#hero{
+  min-height:100vh;                 /* copre l’intero schermo */
+  display:flex;
+  align-items:center;               /* centra verticalmente il blocco */
+}
+#hero h1{
+  font-size:clamp(4rem,18vw,14rem); /* titolo enorme tipo reference */
+  line-height:.85;
+  font-weight:600;
+  letter-spacing:-.02em;
+}
+#hero p{
+  margin-top:1rem;
+  max-width:600px;
+  font-size:1.1rem;
+  opacity:.8;
+}

@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blackdrop Portfolio</title>
 
-  <!-- percorso corretto al CSS -->
-  <link rel="stylesheet" href="css/style.css">
+  <!-- ancora root-relative grazie a <base> -->
+  <base href="/" />
+  <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <div id="loader"><h1>Blackdrop is loading…</h1></div>
 
@@ -23,11 +25,12 @@
   <canvas id="bg-canvas"></canvas>
 
   <main data-scroll-container>
+
     <!-- HERO -->
     <section id="hero" data-scroll-section>
       <div class="container">
         <h1 data-scroll data-scroll-speed="1">Blackdrop</h1>
-        <p data-scroll data-scroll-speed="2">A curated showcase of visuals in motion.</p>
+        <p  data-scroll data-scroll-speed="2">A curated showcase of visuals in motion.</p>
       </div>
     </section>
 
@@ -41,63 +44,43 @@
           <button data-filter="photo">Photo</button>
         </div>
 
+        <!-- video -->
         <div class="project" data-type="video" data-scroll>
           <div class="media">
             <video src="https://cdn.coverr.co/videos/coverr-a-lone-boat-8479/1080p.mp4" autoplay muted loop playsinline></video>
           </div>
           <div class="info">
-            <h2>Solitude</h2>
-            <p>Cinematic short filmed at dawn.</p>
+            <h2>Solitude</h2><p>Cinematic short filmed at dawn.</p>
           </div>
         </div>
 
+        <!-- photo -->
         <div class="project" data-type="photo" data-scroll>
           <div class="media">
-            <img src="https://images.unsplash.com/photo-1549921296-3a6b5b6a30d5?w=900&auto=format&fit=crop" alt="Architecture" />
+            <img src="https://images.unsplash.com/photo-1549921296-3a6b5b6a30d5?w=900&auto=format&fit=crop" alt="Architecture">
           </div>
           <div class="info">
-            <h2>Geometry</h2>
-            <p>Light & shadow on concrete architecture.</p>
+            <h2>Geometry</h2><p>Light & shadow on concrete architecture.</p>
           </div>
         </div>
 
+        <!-- video -->
         <div class="project" data-type="video" data-scroll>
           <div class="media">
             <video src="https://cdn.coverr.co/videos/coverr-looking-out-the-car-window-2893/1080p.mp4" autoplay muted loop playsinline></video>
           </div>
           <div class="info">
-            <h2>Passing</h2>
-            <p>Suburban melancholy captured handheld.</p>
+            <h2>Passing</h2><p>Suburban melancholy captured handheld.</p>
           </div>
         </div>
 
+        <!-- photo -->
         <div class="project" data-type="photo" data-scroll>
           <div class="media">
-            <img src="https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=900&auto=format&fit=crop" alt="Portrait" />
+            <img src="https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=900&auto=format&fit=crop" alt="Portrait">
           </div>
           <div class="info">
-            <h2>Persona</h2>
-            <p>Exploring identity through portraits.</p>
-          </div>
-        </div>
-
-        <div class="project" data-type="photo" data-scroll>
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=900&auto=format&fit=crop" alt="City street" />
-          </div>
-          <div class="info">
-            <h2>Urban Lights</h2>
-            <p>Neon nights in downtown Tokyo.</p>
-          </div>
-        </div>
-
-        <div class="project" data-type="video" data-scroll>
-          <div class="media">
-            <video src="https://cdn.coverr.co/videos/coverr-lake-sunset-1234/1080p.mp4" autoplay muted loop playsinline></video>
-          </div>
-          <div class="info">
-            <h2>Dusk</h2>
-            <p>Color transitions at golden hour.</p>
+            <h2>Persona</h2><p>Exploring identity through portraits.</p>
           </div>
         </div>
 
@@ -113,13 +96,11 @@
 
     <!-- FOOTER -->
     <footer data-scroll-section>
-      <div class="container">
-        <p>&copy; 2025 Blackdrop</p>
-      </div>
+      <div class="container"><p>&copy; 2025 Blackdrop</p></div>
     </footer>
   </main>
 
-  <!-- JS -->
-  <script type="module" src="js/main.js"></script>
+  <!-- unico script -->
+  <script type="module" src="main.js"></script>
 </body>
 </html>

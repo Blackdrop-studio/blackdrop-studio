@@ -4,11 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blackdrop Portfolio</title>
+
+  <base href="/" />
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
+  <!-- ───── NAVBAR ───── -->
   <nav id="navbar">
     <ul>
       <li><a href="#hero">Home</a></li>
@@ -17,22 +20,32 @@
     </ul>
   </nav>
 
+  <!-- bianco che “nasce” dalla goccia -->
+  <div id="white-cover"></div>
+
   <main>
 
-    <!-- HERO -->
+    <!-- ───── HERO ───── -->
     <section id="hero">
       <div class="container hero-wrapper">
-        <h1 class="hero-title">Blackdrop</h1>
-        <p  class="hero-sub">A curated showcase of visuals in motion.</p>
+
+        <!-- logo SVG con lettera “p” isolata e goccia -->
+        <svg id="hero-logo" width="100%" viewBox="0 0 1400 280" fill="none">
+          <text x="0"    y="210" font-family="Inter" font-weight="600" font-size="260" fill="#fff">Blackdro</text>
+          <text id="logo-p" x="1040" y="210" font-family="Inter" font-weight="600" font-size="260" fill="#fff">p</text>
+          <circle id="drop" cx="1120" cy="230" r="8" fill="#fff"/>
+        </svg>
+
+        <p class="hero-sub">A curated showcase of visuals in motion.</p>
       </div>
     </section>
 
-    <!-- PROJECTS -->
+    <!-- ───── PROJECTS (sfondo bianco) ───── -->
     <section id="projects">
       <div class="container">
 
         <div class="filter-buttons">
-          <button data-filter="all"   class="active">All</button>
+          <button data-filter="all" class="active">All</button>
           <button data-filter="video">Video</button>
           <button data-filter="photo">Photo</button>
         </div>
@@ -53,7 +66,7 @@
                  alt="Architecture">
           </div>
           <div class="info">
-            <h2>Geometry</h2><p>Light &amp; shadow on concrete architecture.</p>
+            <h2>Geometry</h2><p>Light & shadow on concrete architecture.</p>
           </div>
         </article>
 
@@ -80,7 +93,7 @@
       </div>
     </section>
 
-    <!-- CONTACT -->
+    <!-- ───── CONTACT (sfondo bianco) ───── -->
     <section id="contact">
       <div class="container">
         <p>Let’s connect: <a href="mailto:thom@blackdrop.studio">thom@blackdrop.studio</a></p>
@@ -89,6 +102,6 @@
 
   </main>
 
-  <script src="main.js"></script>
+  <script src="main.js" type="module"></script>
 </body>
 </html>

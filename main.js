@@ -1,5 +1,8 @@
 import LocomotiveScroll from 'https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/+esm';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/+esm';
+import { ScrollTrigger } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.min.js/+esm';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const canvas = document.getElementById('bg-canvas');
 const ctx = canvas.getContext('2d');
